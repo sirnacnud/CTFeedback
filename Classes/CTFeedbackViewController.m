@@ -45,6 +45,8 @@ typedef NS_ENUM(NSInteger, CTFeedbackSection){
 - (void) viewWillDisappear:(BOOL)animated {
     [super viewWillDisappear:animated];
     self.navigationController.navigationBarHidden = self.previousNavigationBarHiddenState;
+    
+    [self.contentCellItem.textView resignFirstResponder];
 }
 
 + (CTFeedbackViewController *)controllerWithTopics:(NSArray *)topics localizedTopics:(NSArray *)localizedTopics
@@ -106,9 +108,13 @@ typedef NS_ENUM(NSInteger, CTFeedbackSection){
     if (self.navigationController.navigationBarHidden) {
         self.navigationController.navigationBarHidden = NO;
     }
+}
 
-    if (self.presentingViewController.presentedViewController) {
-        self.navigationItem.leftBarButtonItem = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemCancel target:self action:@selector(cancelButtonTapped:)];
+- (void)viewDidAppear:(BOOL)animated {
+    [super viewDidAppear:animated];
+    
+    if( ![self.contentCellItem.textView isFirstResponder] ) {
+        [self.contentCellItem.textView becomeFirstResponder];
     }
 }
 
@@ -135,21 +141,6 @@ typedef NS_ENUM(NSInteger, CTFeedbackSection){
 }
 
 #pragma mark -
-
-- (void)cancelButtonTapped:(id)sender
-{
-    if(self.navigationController != nil){
-        if( [self.navigationController viewControllers][0] == self){
-            // Can't pop, just dismiss
-            [self dismissViewControllerAnimated:YES completion:nil];
-        }else{
-            // Can be popped
-            [self.navigationController popViewControllerAnimated:YES];
-        }
-    }else{
-        [self dismissViewControllerAnimated:YES completion:nil];
-    }
-}
 
 - (void)setTopics:(NSArray *)topics
 {
@@ -183,6 +174,10 @@ typedef NS_ENUM(NSInteger, CTFeedbackSection){
             [weakSelf.tableView reloadRowsAtIndexPaths:@[indexPath] withRowAnimation:UITableViewRowAnimationAutomatic];
         };
 
+        topicsViewController.tableView.backgroundColor = weakSelf.tableView.backgroundColor;
+        topicsViewController.tableView.separatorColor = [UIColor darkGrayColor];
+        topicsViewController.selectedTopic = weakSelf.topicCellItem.topic;
+        
         [sender.navigationController pushViewController:topicsViewController animated:YES];
     };
     [result addObject:self.topicCellItem];

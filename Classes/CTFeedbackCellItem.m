@@ -35,9 +35,11 @@
     [cell.contentView.subviews makeObjectsPerformSelector:@selector(removeFromSuperview)];
 
     cell.textLabel.text = nil;
+    cell.textLabel.textColor = [UIColor whiteColor];
     cell.detailTextLabel.text = nil;
     cell.accessoryType = UITableViewCellAccessoryNone;
     cell.selectionStyle = UITableViewCellSelectionStyleNone;
+    cell.backgroundColor = [UIColor blackColor];
 }
 
 @end
@@ -84,6 +86,7 @@
         self.textView.scrollEnabled = NO;
         self.textView.font = [UIFont systemFontOfSize:14];
         self.textView.backgroundColor = [UIColor clearColor];
+        self.textView.textColor = [UIColor whiteColor];
     }
     return self;
 }

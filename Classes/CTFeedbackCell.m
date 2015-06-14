@@ -17,7 +17,11 @@ NSString *const CTFeedbackCellIdentifierTopic=@"CTFeedbackCellIdentifierTopic";
 {
     self = [super initWithStyle:[NSClassFromString(reuseIdentifier) cellStyle] reuseIdentifier:reuseIdentifier];
     if (self) {
-        // Initialization code
+        UIColor* selectedColor = [UIColor colorWithRed:60.0f/255 green:60.0f/255 blue:60.0f/255 alpha:1];
+        
+        UIView * selectedBackgroundView = [[UIView alloc] init];
+        [selectedBackgroundView setBackgroundColor:selectedColor];
+        [self setSelectedBackgroundView:selectedBackgroundView];
     }
     return self;
 }

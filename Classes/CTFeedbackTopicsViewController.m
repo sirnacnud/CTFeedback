@@ -13,6 +13,8 @@ static NSString *CTFeedbackTopicsViewControllerCellIdentifier = @"Cell";
 
 @interface CTFeedbackTopicsViewController ()
 
+@property (nonatomic,strong) NSIndexPath* selected;
+
 @end
 
 @implementation CTFeedbackTopicsViewController
@@ -30,7 +32,7 @@ static NSString *CTFeedbackTopicsViewControllerCellIdentifier = @"Cell";
 {
     [super viewDidLoad];
 
-    self.title = CTFBLocalizedString(@"Topics");
+    self.title = CTFBLocalizedString(@"Topic");
 
     [self.tableView registerClass:[UITableViewCell class] forCellReuseIdentifier:CTFeedbackTopicsViewControllerCellIdentifier];
 }
@@ -45,6 +47,19 @@ static NSString *CTFeedbackTopicsViewControllerCellIdentifier = @"Cell";
 {
     NSString *topic = self.localizedTopics[(NSUInteger)indexPath.row];
     cell.textLabel.text = topic;
+    cell.textLabel.textColor = [UIColor whiteColor];
+    cell.backgroundColor = [UIColor blackColor];
+    
+    if ([self.selectedTopic isEqualToString:topic]) {
+        cell.accessoryType = UITableViewCellAccessoryCheckmark;
+        self.selected = indexPath;
+    }
+    
+    UIColor* selectedColor = [UIColor colorWithRed:60.0f/255 green:60.0f/255 blue:60.0f/255 alpha:1];
+    
+    UIView * selectedBackgroundView = [[UIView alloc] init];
+    [selectedBackgroundView setBackgroundColor:selectedColor];
+    [cell setSelectedBackgroundView:selectedBackgroundView];
 }
 
 #pragma mark - Table view data source
@@ -70,9 +85,19 @@ static NSString *CTFeedbackTopicsViewControllerCellIdentifier = @"Cell";
 
 - (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath
 {
+    [tableView deselectRowAtIndexPath:indexPath animated:NO];
+    
     NSString *selectedTopic = self.topics[(NSUInteger)indexPath.row];
     if (self.action) self.action(selectedTopic);
-    [self.navigationController popViewControllerAnimated:YES];
+    
+    if (![self.selected isEqual:indexPath]) {
+        UITableViewCell* cell = [self.tableView cellForRowAtIndexPath:self.selected];
+        cell.accessoryType = UITableViewCellAccessoryNone;
+    
+        self.selected = indexPath;
+        cell = [self.tableView cellForRowAtIndexPath:self.selected];
+        cell.accessoryType = UITableViewCellAccessoryCheckmark;
+    }
 }
 
 @end
