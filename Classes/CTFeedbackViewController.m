@@ -453,11 +453,7 @@ static NSString * const ATTACHMENT_FILENAME = @"screenshot.jpg";
                         error:(NSError *)error
 {
     void (^completion)(void) = ^{
-        if (self.presentingViewController.presentedViewController) {
-            [self dismissViewControllerAnimated:YES completion:nil];
-        } else {
-            [self.navigationController popViewControllerAnimated:YES];
-        }
+        [self.navigationController popViewControllerAnimated:YES];
         
         if ([self.delegate respondsToSelector:@selector(feedbackViewController:didFinishWithMailComposeResult:error:)]) {
             [self.delegate feedbackViewController:self didFinishWithMailComposeResult:result error:error];
