@@ -481,6 +481,7 @@ static NSString * const ATTACHMENT_FILENAME = @"screenshot.jpg";
     controller.sourceType = sourceType;
     controller.allowsEditing = YES;
     controller.delegate = self;
+    controller.navigationBar.barStyle = UIBarStyleBlack;
     [self presentViewController:controller animated:YES completion:nil];
 }
 
