@@ -87,6 +87,7 @@
         self.textView.font = [UIFont systemFontOfSize:14];
         self.textView.backgroundColor = [UIColor clearColor];
         self.textView.textColor = [UIColor whiteColor];
+        self.textView.keyboardAppearance = UIKeyboardAppearanceDark;
     }
     return self;
 }
