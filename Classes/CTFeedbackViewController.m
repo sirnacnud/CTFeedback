@@ -9,6 +9,7 @@
 #import "CTFeedbackViewController.h"
 #import "CTFeedbackCell.h"
 #import "CTFeedbackCellItem.h"
+#import "CTFeedbackImagePreviewViewController.h"
 #import "CTFeedbackTopicsViewController.h"
 #include <sys/sysctl.h>
 #import "NSBundle+CTFeedback.h"
@@ -21,7 +22,7 @@ typedef NS_ENUM(NSInteger, CTFeedbackSection){
     CTFeedbackSectionAppInfo
 };
 
-@interface CTFeedbackViewController ()<UIImagePickerControllerDelegate,UIActionSheetDelegate,UINavigationControllerDelegate>
+@interface CTFeedbackViewController ()<UIImagePickerControllerDelegate,UIActionSheetDelegate,UINavigationControllerDelegate, CTFeedbackImagePreviewDelegate>
 
 @property (nonatomic, readonly) NSUInteger selectedTopicIndex;
 
@@ -515,7 +516,6 @@ static NSString * const ATTACHMENT_FILENAME = @"screenshot.jpg";
 - (void)createImagePickerControllerWithSourceType:(UIImagePickerControllerSourceType)sourceType{
     UIImagePickerController *controller = [[UIImagePickerController alloc] init];
     controller.sourceType = sourceType;
-    controller.allowsEditing = YES;
     controller.delegate = self;
     controller.navigationBar.barStyle = UIBarStyleBlack;
     [self presentViewController:controller animated:YES completion:nil];
@@ -536,20 +536,42 @@ static NSString * const ATTACHMENT_FILENAME = @"screenshot.jpg";
     }
 }
 
-#pragma mark - UIImagePickerControllerDelegate
-- (void)imagePickerController:(UIImagePickerController *)picker didFinishPickingMediaWithInfo:(NSDictionary *)info {
-    [picker dismissViewControllerAnimated:YES completion:^() {
-        NSIndexPath *indexPath = [NSIndexPath indexPathForRow:0 inSection:CTFeedbackSectionScreenshot];
-        CTFeedbackAdditionInfoCellItem *cellItem = self.cellItems[(NSUInteger)indexPath.section][(NSUInteger)indexPath.row];
+- (void)attachImage:(UIImage *)image {
+    NSIndexPath *indexPath = [NSIndexPath indexPathForRow:0 inSection:CTFeedbackSectionScreenshot];
+    CTFeedbackAdditionInfoCellItem *cellItem = self.cellItems[(NSUInteger)indexPath.section][(NSUInteger)indexPath.row];
+    cellItem.screenImage = image;
+    //        cellItem.value = [[info objectForKey:@"UIImagePickerControllerReferenceURL"] absoluteString];
+    [self.tableView reloadRowsAtIndexPaths:@[indexPath] withRowAnimation:UITableViewRowAnimationAutomatic];
+}
 
-        UIImage *image = [info objectForKey:UIImagePickerControllerEditedImage];
-        if (image == nil){
-			image = [info objectForKey:UIImagePickerControllerOriginalImage];
-        }
-        cellItem.screenImage = image;
-        //        cellItem.value = [[info objectForKey:@"UIImagePickerControllerReferenceURL"] absoluteString];
-        [self.tableView reloadRowsAtIndexPaths:@[indexPath] withRowAnimation:UITableViewRowAnimationAutomatic];
+#pragma mark - CTFeedbackImagePreviewDelegate
+- (void)imagePreviewController:(CTFeedbackImagePreviewViewController *)previewer didSelectImage:(UIImage *)image {
+    [self.presentedViewController dismissViewControllerAnimated:YES completion:^{
+        [self attachImage:image];
     }];
+}
+
+#pragma mark - UIImagePickerControllerDelegate
+
+- (void)imagePickerController:(UIImagePickerController *)picker didFinishPickingMediaWithInfo:(NSDictionary *)info {
+    // UIImagePickerControllerMediaMetadata is only valid when source is UIImagePickerControllerSourceTypeCamera
+    BOOL fromCamera = info[UIImagePickerControllerMediaMetadata] != nil;
+    
+    if( fromCamera ) {
+        [picker dismissViewControllerAnimated:YES completion:^() {
+            UIImage *image = [info objectForKey:UIImagePickerControllerEditedImage];
+            if (image == nil){
+                image = [info objectForKey:UIImagePickerControllerOriginalImage];
+            }
+            
+            [self attachImage:image];
+        }];
+    } else {
+        UIImage *image = [info objectForKey:UIImagePickerControllerOriginalImage];
+        CTFeedbackImagePreviewViewController *imagePreview = [[CTFeedbackImagePreviewViewController alloc] initWithImage:image];
+        imagePreview.delegate = self;
+        [picker pushViewController:imagePreview animated:YES];
+    }
 }
 
 - (void)imagePickerControllerDidCancel:(UIImagePickerController *)picker {
