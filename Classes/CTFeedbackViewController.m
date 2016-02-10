@@ -288,7 +288,7 @@ typedef NS_ENUM(NSInteger, CTFeedbackSection){
     NSDictionary *platformNamesDic = [NSDictionary dictionaryWithContentsOfFile:filePath];
     
     // Changing a platform name to a human readable version
-    platform = platformNamesDic[platform];
+    platform = platformNamesDic[platform] ?: platform;
 
     return platform;
 }
