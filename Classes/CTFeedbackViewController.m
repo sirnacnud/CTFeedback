@@ -357,6 +357,13 @@ typedef NS_ENUM(NSInteger, CTFeedbackSection){
     
     return body;
 }
+
+- (BOOL)hasContent
+{
+    NSString *content = self.contentCellItem.textView.text;
+    return content && content.length > 0;
+}
+
 #pragma mark - Convert image
 
 static NSString * const MIME_TYPE_JPEG = @"image/jpeg";
@@ -370,18 +377,46 @@ static NSString * const ATTACHMENT_FILENAME = @"screenshot.jpg";
 - (void)sendButtonTapped:(id)sender
 {
     if ([MFMailComposeViewController canSendMail]) {
-        MFMailComposeViewController *controller = [[MFMailComposeViewController alloc] init];
-        controller.mailComposeDelegate = self;
-        [controller setToRecipients:self.toRecipients];
-        [controller setCcRecipients:self.ccRecipients];
-        [controller setBccRecipients:self.bccRecipients];
-        [controller setSubject:self.mailSubject];
-        [controller setMessageBody:self.mailBody isHTML:self.useHTML];
-        // Attach an image to the email
-        if (self.mailAttachment && [self.mailAttachment length]>0) {
-            [controller addAttachmentData:self.mailAttachment mimeType:MIME_TYPE_JPEG fileName:ATTACHMENT_FILENAME];
+        if ([self hasContent]) {
+            MFMailComposeViewController *controller = [[MFMailComposeViewController alloc] init];
+            controller.mailComposeDelegate = self;
+            [controller setToRecipients:self.toRecipients];
+            [controller setCcRecipients:self.ccRecipients];
+            [controller setBccRecipients:self.bccRecipients];
+            [controller setSubject:self.mailSubject];
+            [controller setMessageBody:self.mailBody isHTML:self.useHTML];
+            // Attach an image to the email
+            if (self.mailAttachment && [self.mailAttachment length]>0) {
+                [controller addAttachmentData:self.mailAttachment mimeType:MIME_TYPE_JPEG fileName:ATTACHMENT_FILENAME];
+            }
+            [self presentViewController:controller animated:YES completion:nil];
+        } else {
+            NSString *title = CTFBLocalizedString(@"Error");
+            NSString *message = CTFBLocalizedString(@"You must supply a message before you can send the feedback.");
+            NSString *buttonText = CTFBLocalizedString(@"Dismiss");
+            
+            if ([UIAlertController class]) {
+                UIAlertController *alert= [UIAlertController alertControllerWithTitle:title
+                                                                              message:message
+                                                                       preferredStyle:UIAlertControllerStyleAlert];
+                
+                UIAlertAction *dismiss = [UIAlertAction actionWithTitle:buttonText
+                                                                  style:UIAlertActionStyleCancel
+                                                                handler:^(UIAlertAction *action) {
+                                                                    [alert dismissViewControllerAnimated:YES completion:nil];
+                                                                }];
+                
+                [alert addAction:dismiss];
+                [self presentViewController:alert animated:YES completion:nil];
+            } else {
+                UIAlertView *alert = [[UIAlertView alloc] initWithTitle:title
+                                                                message:message
+                                                               delegate:nil
+                                                      cancelButtonTitle:buttonText
+                                                      otherButtonTitles:nil];
+                [alert show];
+            }
         }
-        [self presentViewController:controller animated:YES completion:nil];
     } else {
         if ([UIAlertController class]) {
             UIAlertController *alert= [UIAlertController alertControllerWithTitle:CTFBLocalizedString(@"Error")
