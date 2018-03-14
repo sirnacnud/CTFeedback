@@ -5,7 +5,7 @@ Pod::Spec.new do |s|
   s.homepage     = "https://github.com/rizumita/CTFeedback"
   s.license      = { :type => 'MIT', :file => 'LICENSE' }
   s.author       = { "Ryoichi Izumita" => "r.izumita@caph.jp" }
-  s.platform     = :ios, '6.0'
+  s.platform     = :ios, '8.0'
   s.source       = { :git => "https://github.com/rizumita/CTFeedback.git", :tag => "1.0.20" }
   s.source_files  = 'Classes', 'Classes/**/*.{h,m,plist}'
   s.resource_bundles = { 'CTFeedback' => ['Resources/*.lproj', 'Resources/PlatformNames.plist'] }
